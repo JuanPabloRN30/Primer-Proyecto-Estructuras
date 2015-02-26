@@ -1,8 +1,6 @@
-#include "Cadena.h"
-#include <set>
-
 // constructor
-Cadena::Cadena(string tipo1, string cadena1 ){
+Cadena::Cadena(string tipo1, string cadena1 )
+{
     tipo = tipo1;
     cadena = cadena1;
 }
@@ -17,37 +15,107 @@ string Cadena::getCadena()
     return cadena;
 }
 
-set<char> ingresarBases()
+void Cadena::setTipo(string tipo1)
 {
-    set<char> bases;
-    bases.insert('A');
-    bases.insert('C');
-    bases.insert('G');
-    bases.insert('T');
-    bases.insert('U');
-    bases.insert('R');
-    bases.insert('Y');
-    bases.insert('K');
-    bases.insert('M');
-    bases.insert('S');
-    bases.insert('W');
-    bases.insert('B');
-    bases.insert('D');
-    bases.insert('H');
-    bases.insert('V');
-    bases.insert('N');
+    tipo = tipo1;
+}
 
+void Cadena::setCadena(string cadena1)
+{
+    cadena = cadena1;
+}
+
+vector< char > ingresarBases()
+{
+    vector< char > bases;
+    bases.push_back('A');
+    bases.push_back('C');
+    bases.push_back('G');
+    bases.push_back('T');
+    bases.push_back('U');
+    bases.push_back('R');
+    bases.push_back('Y');
+    bases.push_back('K');
+    bases.push_back('M');
+    bases.push_back('S');
+    bases.push_back('W');
+    bases.push_back('B');
+    bases.push_back('D');
+    bases.push_back('H');
+    bases.push_back('V');
+    bases.push_back('N');
+    bases.push_back('X');
     return bases;
 }
 
-int Cadena::contarBases()
+int buscarBasePos(char letra)
 {
-    set < char > bases = ingresarBases();
+    vector < char > bases = ingresarBases();
+    for(int i = 0 ; i < bases.size() ; i++)
+    {
+        if(bases[i] == letra)
+            return i;
+    }
+    return -1;
+}
+
+vector < int > Cadena::contarBases()
+{
+    vector < int > totales(17,0);
     int cont = 0;
     for(int i = 0 ; i < cadena.size() ; i++)
     {
-        if(bases.find(cadena[i]) != bases.end())
+        int pos = buscarBasePos(cadena[i]);
+        if(pos != -1)
+            totales[pos]++;
+    }
+    return totales;
+}
+
+int Cadena::subCadenas(string subcadena, bool bandera1)
+{
+    int cont = 0;
+    int j,k;
+    for(int i = 0 ; i < cadena.size() ; i++)
+    {
+        bool bandera = false;
+        if(cadena[i] == subcadena[0])
+        {
+            bandera = true;
+            int j,k;
+            j = i; k = 0;
+            int pos = 0;
+            while(pos < subcadena.size())
+            {
+                if(cadena[j] == '\n')
+                    j++;
+                if(cadena[j] != subcadena[k])
+                    bandera = false;
+                if(j >= cadena.size())
+                    break;
+                if(k >= subcadena.size())
+                    break;
+                j++; k++;
+                pos++;
+            }
+        }
+        if(bandera)
+        {
+            if(!bandera1)
+            {
+                int pos = i, j = 0;
+                while(j < subcadena.size())
+                {
+                    if(cadena[pos] == '\n')
+                    {
+                        pos++;
+                    }
+                    cadena[pos++] = 'X';
+                    j++;
+                }
+            }
             cont++;
+        }
     }
     return cont;
 }

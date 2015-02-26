@@ -2,49 +2,103 @@
 #include<vector>
 #include<sstream>
 #include<fstream>
-#include "Cadena.h"
+#include "CodigoGenetico.h"
+#include "Menu.h"
 using namespace std;
 
-vector < Cadena > cargarDatos(string nombreArchivo)
+void cargar(CodigoGenetico &codigo,string nombreArchivo)
 {
-    vector < Cadena > arregloCadenas;
-    ifstream entrada;
-    bool bandera = false;
-
-    nombreArchivo+= ".fa";
-    entrada.open(nombreArchivo.c_str(),ios::in);
-    string tipo;
-    entrada >> tipo;
-    while(!entrada.eof() && !bandera)
+    int diferencia = codigo.contarSecuencias();
+    if(codigo.cargarDatos(nombreArchivo))
     {
-        string cadena,cadTot;
-        cadena = cadTot = "";
-        while(cadena[0] != '>' && !bandera)
-        {
-            cadTot+= cadena;
-            getline(entrada,cadena);
-            if(entrada.eof())
-                bandera = true;
-
-        }
-        stringstream ss(tipo);
-        char caracter;
-        ss >> caracter >> tipo;
-        Cadena cad(tipo,cadTot);
-        arregloCadenas.push_back(cad);
-        tipo = cadena;
+        diferencia = codigo.contarSecuencias() - diferencia;
+        if(diferencia == 0)
+            cout << nombreArchivo << " no contiene ninguna secuencia" << endl;
+        else if(diferencia == 1)
+            cout << 1 << " secuencia cargada cargada de: " << nombreArchivo << endl;
+        else
+            cout << diferencia << " secuencia cargada cargada de: " << nombreArchivo << endl;
     }
-    return arregloCadenas;
+    else
+        cout << "ERROR CON EL ARCHIVO " << endl;
 }
 
-int contarSecuencias(vector < Cadena > arregloCadenas)
+void contar(CodigoGenetico &codigo)
 {
-    return arregloCadenas.size();
+    int cantSecuencias = codigo.contarSecuencias();
+    if(cantSecuencias == 0)
+        cout << "No hay secuencias cargadas" << endl;
+    else if(cantSecuencias == 1)
+        cout << "1 secuencia cargada" << endl;
+    else
+        cout << cantSecuencias << " secuencias cargadas" << endl;
+}
+
+void listaSecuencias(CodigoGenetico &codigo)
+{
+    int cantSecuencias = codigo.contarSecuencias();
+    if(cantSecuencias == 0)
+        cout << "No hay secuencias cargadas" << endl;
+    else
+    {
+        codigo.listaSecuencias();
+    }
+}
+
+void subSecuencia(CodigoGenetico &codigo, string secuencia)
+{
+    int cantSecuencias = codigo.contarSecuencias();
+    if(cantSecuencias == 0)
+    {
+        cout << "No hay secuencias cargadas" << endl;
+    }
+    else
+    {
+        int cantidad = codigo.subCadenas(secuencia,1);
+        if(cantidad == 0)
+            cout << "No existe esa subsecuencia" << endl;
+        else
+            cout << "La secuencia dada se repite: " << cantidad << " de veces." << endl;
+
+    }
+}
+
+void mascara(CodigoGenetico &codigo, string secuencia )
+{
+    int cantSecuencias = codigo.contarSecuencias();
+    if(cantSecuencias == 0)
+        cout << "No hay secuencias cargadas" << endl;
+    else
+    {
+        int cantidad = codigo.subCadenas(secuencia,0);
+        if(cantidad == 0)
+            cout << "No se enmascararon secuencias" << endl;
+        else if(cantidad == 1)
+            cout << "1 Secuencia se enmascaro" << endl;
+        else
+            cout << cantidad <<" Secuencias se enmascararon" << endl;
+    }
+}
+
+void guardar(CodigoGenetico codigo, string nombreArchivo)
+{
+    int cantSecuencias = codigo.contarSecuencias();
+    if(cantSecuencias == 0)
+    {
+        cout << "No hay secuencias cargadas" << endl;
+    }
+    else
+    {
+        if(codigo.guardarDatos(nombreArchivo))
+            cout << "Las secuencias se guardaron correctamente en: " << nombreArchivo << endl;
+        else
+            cout << "Error escribiendo el archivo: " << nombreArchivo << endl;
+    }
 }
 
 int main()
 {
-    vector < Cadena > arregloCadenas;
+    CodigoGenetico codigo;
     string linea;
     int cantSecuencias;
     do
@@ -54,100 +108,68 @@ int main()
         stringstream ss(linea);
         string opc;
         ss >> opc;
-
-        if(opc == "load")
+        if(opc == "help")
         {
-            //PREGUNTAR SI PUEDEN ENTRAR MAS SECUENCIAS, CAMBIARIA UNAS COSITAS.
-            string nombreArchivo;
-            ss >> nombreArchivo;
-            arregloCadenas = cargarDatos(nombreArchivo);
-            if(arregloCadenas.size() == 0)
-                cout << nombreArchivo << " no contiene ninguna secuencia" << endl;
-            else if(arregloCadenas.size() == 1)
-                cout << 1 << " secuencia cargada cargada de: " << nombreArchivo << endl;
-            else
-                cout << arregloCadenas.size() << " secuencia cargada cargada de: " << nombreArchivo << endl;
-        }
-        else if(opc == "count")
-        {
-            int cantSecuencias = contarSecuencias(arregloCadenas);
-            if(cantSecuencias == 0)
-                cout << "No hay secuencias cargadas" << endl;
-            else if(cantSecuencias == 1)
-                cout << "1 secuencia cargada" << endl;
-            else
-                cout << cantSecuencias << " secuencias cargadas" << endl;
+            string opc2;
+            ss >> opc2;
+            if(opc2 == "load")
+                load();
+            else if(opc2 == "count")
+                countM();
+            else if(opc2 == "list_sequences")
+                list_sequences();
+            else if(opc2 == "histogram")
+                histogram();
+            else if(opc2 == "is_subsequence")
+                is_subsequence();
+            else if(opc2 == "mask")
+                mask();
+            else if(opc2 == "save")
+                save();
 
         }
-        else if(opc == "list_sequences")
+        else
         {
-            int cantSecuencias = contarSecuencias(arregloCadenas);
-            if(cantSecuencias == 0)
-                cout << "No hay secuencias cargadas" << endl;
-            else
+            if(opc == "load")
             {
-                for(int i = 0 ; i < arregloCadenas.size() ; i++)
-                {
-                    string tipo = arregloCadenas[i].getTipo() ;
-                    int cantidad = arregloCadenas[i].contarBases();
-                    cout << "Secuencia: " << tipo ;
-                    if(tipo == "Incomplete_sequence")
-                        cout << " tiene al menos " << cantidad << " bases" << endl;
-                    else
-                        cout << " tiene " << cantidad << " bases" << endl;
-                }
+                string nombreArchivo;
+                ss >> nombreArchivo;
+                cargar(codigo,nombreArchivo);
             }
-        }
-        else if(opc == "histogram")
-        {
-            string secuenciaDescripcion;
-            ss >> secuenciaDescripcion;
-            // SE CUENTAN LAS QUE NO SON BASES
-            // QUE ES COMO TAL DESCRIPCION DE LA SECUENCIA, SI HAY 2 O MAS QUE PASA.
-        }
-        else if(opc == "is_subsequence")
-        {
-            string secuencia;
-            ss >> secuencia;
-            cantSecuencias = contarSecuencias(arregloCadenas);
-            if(cantSecuencias == 0)
+            else if(opc == "count")
             {
-                cout << "No hay secuencias cargadas" << endl;
+                contar(codigo);
             }
-            else
+            else if(opc == "list_sequences")
             {
-                cout << "Ingrese linea: ";
-                string line;
-                cin >> line;
-                cout << "Ingrese la sub:";
-                string sub;
-                cin >> sub;
+                listaSecuencias(codigo);
             }
-        }
-        else if(opc == "mask")
-        {
-            string secuencia;
-            ss >> secuencia;
-        }
-        else if(opc == "save")
-        {
-            string nombreArchivo;
-            ss >> nombreArchivo;
-            cantSecuencias = contarSecuencias(arregloCadenas);
-            if(cantSecuencias == 0)
+            else if(opc == "histogram")
             {
-                cout << "No hay secuencias cargadas" << endl;
+                string secuenciaDescripcion;
+                ss >> secuenciaDescripcion;
+                codigo.mostrarHistograma(secuenciaDescripcion);
             }
-            else
+            else if(opc == "is_subsequence")
             {
-
+                string secuencia;
+                ss >> secuencia;
+                subSecuencia(codigo,secuencia);
             }
-
+            else if(opc == "mask")
+            {
+                string secuencia;
+                ss >> secuencia;
+                mascara(codigo,secuencia);
+            }
+            else if(opc == "save")
+            {
+                string nombreArchivo;
+                ss >> nombreArchivo;
+                guardar(codigo,nombreArchivo);
+            }
         }
     }
     while(linea != "exit");
-
     return 0;
 }
-
-
