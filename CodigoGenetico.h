@@ -13,7 +13,6 @@ class CodigoGenetico {
     bool cargarDatos(string nombreArchivo);
     void listaSecuencias();
     Cadena* buscarCadena(string descripcion);
-    void mostrarBases(string cadena);
     void mostrarHistograma(string descripcion);
     bool guardarDatos(string nombreArchivo);
     int subCadenas(string subCadena, bool bandera);
